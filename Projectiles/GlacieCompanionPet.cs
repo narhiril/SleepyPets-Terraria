@@ -45,7 +45,7 @@ namespace SleepyGangMiniMod.Projectiles
 		{
 			DisplayName.SetDefault("Sleepy Ice Buddy");
 			Main.projPet[projectile.type] = true;
-			Main.projFrames[projectile.type] = 1; //fix this when sprite is done
+			Main.projFrames[projectile.type] = 14;
 			//projectile.width = 50;
 			//projectile.height = 40;
 		}
@@ -167,9 +167,9 @@ namespace SleepyGangMiniMod.Projectiles
 						}
 					}
 					//animation stuff
-					//firstAnimationFrameIndex = 0; //idle animation
-					//lastAnimationFrameIndex = 0;
-					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
+					firstAnimationFrameIndex = 1; //idle animation
+					lastAnimationFrameIndex = 2;
+					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 14);
 					SGProjectileFacePlayer(player, false, 40f);
 					break;
 				case 1: //flying or falling
@@ -181,8 +181,8 @@ namespace SleepyGangMiniMod.Projectiles
 					}
 					projectile.ai[0] = 0f;
 					//animation stuff
-					//firstAnimationFrameIndex = 0; //falling-flying animation
-					//lastAnimationFrameIndex = 0;
+					firstAnimationFrameIndex = 12; //falling-flying animation
+					lastAnimationFrameIndex = 13;
 					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
 					SGProjectileFacePlayer(player, false, 40f);
 					break;
@@ -197,8 +197,8 @@ namespace SleepyGangMiniMod.Projectiles
 					}
 					projectile.ai[0] = 0f;
 					//animation stuff
-					//firstAnimationFrameIndex = 0; //running animation
-					//lastAnimationFrameIndex = 0;
+					firstAnimationFrameIndex = 9; //running animation
+					lastAnimationFrameIndex = 12;
 					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
 					SGProjectileFacePlayer(player, false, 40f);
 					break;
@@ -207,12 +207,12 @@ namespace SleepyGangMiniMod.Projectiles
 					projectile.tileCollide = true;
 					doCollideFlag = true;
 					isSpriteRotated = false;
-					//firstAnimationFrameIndex = 0; //blinking idle animation
-					//lastAnimationFrameIndex = 0;
-					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
+					firstAnimationFrameIndex = 1; //blinking idle animation
+					lastAnimationFrameIndex = 8;
+					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 9, 3);
 					SGProjectileFacePlayer(player, false, 40f);
 					projectile.ai[0] += 0.03f;
-					if (projectile.ai[0] > 20f) //revert to regular idle state after ~20 seconds
+					if (projectile.ai[0] > 4f) //revert to regular idle state on timer
 					{
 						projectile.ai[0] = 0f;
 						aiState = 0;
@@ -233,9 +233,9 @@ namespace SleepyGangMiniMod.Projectiles
 						projectile.ai[0] = 0f;
 						int sleepyDust = Dust.NewDust(new Vector2(projectile.position.X + 5f, projectile.position.Y - 10f), 10, 10, mod.DustType("SleepyParticles"), 0f, 0f, 0, new Color(5, 180, 200), 1f);
 					}
-					//firstAnimationFrameIndex = 0; //sleeping idle animation
-					//lastAnimationFrameIndex = 0;
-					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6, 2);
+					firstAnimationFrameIndex = 0;
+					lastAnimationFrameIndex = 0;
+					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
 					break;
 
 			}

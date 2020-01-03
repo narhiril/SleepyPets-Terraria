@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.ID;
-using Terraria.ModLoader;
+//using Terraria.ID;
+//using Terraria.ModLoader;
 
 namespace SleepyGangMiniMod.Projectiles
 {
@@ -162,7 +162,6 @@ namespace SleepyGangMiniMod.Projectiles
 							{
 								aiState = 4; //switch to sleeping idle animation
 								projectile.ai[0] = 0f;
-								isAsleep = true;
 								goto case 4;
 							}
 						}
@@ -223,18 +222,16 @@ namespace SleepyGangMiniMod.Projectiles
 					break;
 				case 4: //idle, sleeping
 				default:
-					if (!isAsleep)
-					{
-						aiState = 0;
-						goto case 0;
-					}
+					isAsleep = true;
 					isMovingTowardsPlayer = false;
 					projectile.tileCollide = true;
 					doCollideFlag = true;
 					isSpriteRotated = false;
-					if (projectile.frameCounter == 0)
+					projectile.ai[0] += 0.03f;
+					if (projectile.ai[0] > 3f)
 					{
-						//sleepy particle stuff goes here
+						projectile.ai[0] = 0f;
+						int sleepyDust = Dust.NewDust(new Vector2(projectile.position.X + 5f, projectile.position.Y - 10f), 10, 10, mod.DustType("SleepyParticles"), 0f, 0f, 0, new Color(5, 180, 200), 1f);
 					}
 					//firstAnimationFrameIndex = 0; //sleeping idle animation
 					//lastAnimationFrameIndex = 0;
@@ -296,7 +293,6 @@ namespace SleepyGangMiniMod.Projectiles
 			}
 			else if (!Collision.SolidCollision(projectile.position, projectile.width, projectile.height)) //if in the air, but not moving towards player
 			{
-				isAsleep = false; //wake up lol
 				if (projectile.velocity.Y < 10f)
 				{
 					projectile.velocity.Y += 0.3f; //gravity

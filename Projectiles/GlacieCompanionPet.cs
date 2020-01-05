@@ -15,6 +15,7 @@ namespace SleepyGangMiniMod.Projectiles
 		protected bool doCollideFlag = false;
 		protected bool useGroundMovement = false;
 		protected bool isAsleep = false;
+		//protected bool animationReversed = false; //not currently used 
 		protected int aiStatePrevious;
 		protected int firstAnimationFrameIndex;
 		protected int lastAnimationFrameIndex;
@@ -22,12 +23,11 @@ namespace SleepyGangMiniMod.Projectiles
 		public override void SetDefaults()
 		{
 			projectile.netImportant = true;
-			projectile.aiStyle = 0;
+			projectile.aiStyle = 0; //no vanilla ai, use custom
 			projectile.friendly = true;
 			projectile.penetrate = -1;
 			projectile.timeLeft *= 5;
 			projectile.tileCollide = true;
-			aiState = 1;
 			projectile.width = 32;
 			projectile.height = 25;
 			drawOffsetX = -12;
@@ -38,6 +38,7 @@ namespace SleepyGangMiniMod.Projectiles
 			projectile.frameCounter = 0;
 			firstAnimationFrameIndex = 0;
 			lastAnimationFrameIndex = (Main.projFrames[projectile.type] - 1);
+			aiState = 1;
 			maxSpeed = 8f;
 		}
 
@@ -55,10 +56,12 @@ namespace SleepyGangMiniMod.Projectiles
 		{
 			Player player = Main.player[projectile.owner];
 			SleepyGangMiniModPlayer modPlayer = player.GetModPlayer<SleepyGangMiniModPlayer>();
-			
+
+
 			/*
 			 *This 'if' tree checks distance thresholds to determine 1) whether or not to move towards the player and 2) if so, how
 			*/
+
 			if ((Math.Abs(player.position.X - projectile.position.X) > 2550) || (Math.Abs(player.position.Y - projectile.position.Y) > 2550)) //if too far, teleport to owner
 			{
 				SGProjectileMoveTowardsPoint(player.position, 0f, 0f, 0f, 0f); //teleport
@@ -69,6 +72,10 @@ namespace SleepyGangMiniMod.Projectiles
 				isMovingTowardsPlayer = false;
 				projectile.frameCounter = 0;
 				return;
+			}
+			else if (aiState == 5) //special ai state check
+			{
+				goto AiStateSwitch;
 			}
 			else if ((Math.Abs(player.position.X - projectile.position.X) + Math.Abs(player.position.Y - projectile.position.Y)) > 750) //seek out owner (no collide)
 			{
@@ -100,7 +107,7 @@ namespace SleepyGangMiniMod.Projectiles
 			 * 2 = running
 			 * 3 = idle, open eyes animation
 			 * 4 = idle, sleeping animation
-			 * 
+			 * 5 = special animation state, waking up
 			 * 
 			*/
 
@@ -127,7 +134,7 @@ namespace SleepyGangMiniMod.Projectiles
 				projectile.velocity.Y = 0f;
 			}
 
-
+			AiStateSwitch:
 			switch (aiState)
 			{
 				case 0: //idle
@@ -207,6 +214,7 @@ namespace SleepyGangMiniMod.Projectiles
 					projectile.tileCollide = true;
 					doCollideFlag = true;
 					isSpriteRotated = false;
+					//animation stuff
 					firstAnimationFrameIndex = 1; //blinking idle animation
 					lastAnimationFrameIndex = 8;
 					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 9, 3);
@@ -233,10 +241,39 @@ namespace SleepyGangMiniMod.Projectiles
 						projectile.ai[0] = 0f;
 						int sleepyDust = Dust.NewDust(new Vector2(projectile.position.X + 5f, projectile.position.Y - 10f), 10, 10, mod.DustType("SleepyParticles"), 0f, 0f, 0, new Color(5, 180, 200), 1f);
 					}
+					//needs wakeup check that starts aiState = 5
+					//animation stuff
 					firstAnimationFrameIndex = 0;
 					lastAnimationFrameIndex = 0;
 					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
 					break;
+				case 5: //wakeup sequence, not yet fully implemented
+					isAsleep = false;
+					isMovingTowardsPlayer = false;
+					projectile.tileCollide = true;
+					doCollideFlag = true;
+					isSpriteRotated = true;
+					//animation stuff
+					firstAnimationFrameIndex = 6; //this needs to be fixed, sprite sheet needs a new frame
+					lastAnimationFrameIndex = 8;
+					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
+					SGProjectileFacePlayer(player, false, 20f);
+					if (projectile.ai[0] < 0.05f)
+					{
+						//wakeup exclamation dust
+						//play sound
+					}
+					projectile.ai[0] += 0.1f;
+					projectile.rotation = 0.15f * (float)Math.Sin(projectile.ai[0] - 2f);
+					if (projectile.ai[0] < 5f)
+					{
+						goto MiscAIChecks; //skip movement checks
+					}
+					else
+					{
+						goto case 0; //return to idle
+					}
+					//break;
 
 			}
 
@@ -319,6 +356,8 @@ namespace SleepyGangMiniMod.Projectiles
 			 * Final, misc AI checks
 			 * 
 			*/
+
+			MiscAIChecks:
 
 			if (aiStatePrevious != aiState) //on ai state change
 			{

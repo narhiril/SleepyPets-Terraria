@@ -57,18 +57,13 @@ namespace SleepyGangMiniMod.Projectiles
 					break;
 			}
 		}
-		/// <summary>
-		/// Animates a loop between the two specified frames at a specified speed, with an optional fourth parameter for number of non-looping transition frames (defaults to 0).
-		/// </summary>
-		public void SGProjectileAnimateBetweenFrames(int firstAnimationFrameIndex, int lastAnimationFrameIndex, int ticksBetweenFrames)
-		{
-			SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, ticksBetweenFrames, 0);
-		}
 
 		/// <summary>
-		/// Animates a loop between the two specified frames at a specified speed, with an optional fourth parameter for number of non-looping transition frames.
+		/// Animates a loop between the two specified frames at a specified speed, with optional parameters for number of non-looping transition frames and back-and-forth style.
+		/// <para>
+		/// Back-and-forth mode requires that an additional flag be passed as the backAndForthVariable argument, or else it will not function properly.</para>
 		/// </summary>
-		public void SGProjectileAnimateBetweenFrames(int firstAnimationFrameIndex, int lastAnimationFrameIndex, int ticksBetweenFrames, int transitionFrameCount)
+		public void SGProjectileAnimateBetweenFrames(int firstAnimationFrameIndex, int lastAnimationFrameIndex, int ticksBetweenFrames, int transitionFrameCount = 0, bool backAndForthMode = false, bool backAndForthVariable = false)
 		{
 			if (firstAnimationFrameIndex >= lastAnimationFrameIndex) //input validation
 			{
@@ -86,32 +81,152 @@ namespace SleepyGangMiniMod.Projectiles
 				projectile.frame = firstAnimationFrameIndex;
 				return;
 			}
-			else if (projectile.frameCounter == ticksBetweenFrames) //increment frame
+
+			if (!backAndForthMode) //standard looping animation
 			{
-				if (projectile.frame != lastAnimationFrameIndex)
+				if (projectile.frameCounter == ticksBetweenFrames) //increment frame
 				{
-					projectile.frame += 1;
+					if (projectile.frame != lastAnimationFrameIndex)
+					{
+						projectile.frame += 1;
+					}
+					else if (transitionFrameCount >= (lastAnimationFrameIndex - firstAnimationFrameIndex))
+					{
+						return; //end looping animation
+					}
+					else
+					{
+						projectile.frame = firstAnimationFrameIndex + transitionFrameCount;
+					}
 				}
-				else
+				return;
+			}
+			else //back-and-forth looping animation
+			{
+				if (projectile.frameCounter == ticksBetweenFrames)
 				{
-					projectile.frame = firstAnimationFrameIndex + transitionFrameCount;
+					if (projectile.frame != lastAnimationFrameIndex)
+					{
+						if (backAndForthVariable == true) //reverse mode
+						{
+							projectile.frame -= 1;
+							return;
+						}
+						else //forward mode
+						{
+							projectile.frame += 1;
+							return;
+						}
+					}
+					else if (transitionFrameCount >= (lastAnimationFrameIndex - firstAnimationFrameIndex))
+					{
+						return; //end looping animation
+					}
+					else if (projectile.frame == firstAnimationFrameIndex + transitionFrameCount)
+					{
+						backAndForthVariable = false; //set to forward mode
+						projectile.frame += 1;
+						return;
+					}
+					else
+					{
+						backAndForthVariable = true;
+						projectile.frame -= 1;
+					}
 				}
+
+
 			}
 		}
 
-
 		/// <summary>
-		/// Moves the projectile towards a point using default parameters, accepts additional (float) parameters for maximum velocity, acceleration, deceleration, and stop distance.  
+		/// Animates a loop from a one-dimensional integer array of frame numbers.  Accepts additional arguments for transition frames and "back-and-forth" style animation loops.
 		/// <para>
-		/// Default values are 0 (no limit) for max velocity, 2 for acceleration/deceleration, and 0 (stop-on-point) for stop distance.
-		/// </para><para>
-		/// Negative values may cause weird, unintended behavior.
-		/// </para>
+		/// Back-and-forth mode requires that an additional flag be passed as the backAndForthVariable argument, or else it will not function properly.</para>
 		/// </summary>
-		public void SGProjectileMoveTowardsPoint(Vector2 targetPoint)
+		public void SGProjectileAnimateFromArray(int[] frameArray, int ticksBetweenFrames, int transitionFrameCount = 0, bool backAndForthMode = false, bool backAndForthVariable = false)
 		{
-			SGProjectileMoveTowardsPoint(targetPoint, 0f, 2f, 2f, 0f);
+			int currentFrameIndex = frameArray[0];
+			if (frameArray.Length < 2) //input validation
+			{
+				projectile.frame = frameArray[0];
+				return;
+			}
+
+			projectile.frameCounter++;
+			if (projectile.frameCounter > ticksBetweenFrames) //reset counter
+			{
+				projectile.frameCounter = 0;
+			}
+
+			for (int i=0; i < frameArray.Length; i++) //find current frame in array, will default to last frame if not found
+			{
+				if (projectile.frame == frameArray[i] || i == frameArray.Length)
+				{
+					currentFrameIndex = frameArray[i];
+					break;
+				}
+			}
+
+			if (!backAndForthMode) //standard looping animation
+			{
+				if (projectile.frameCounter == ticksBetweenFrames) //increment frame
+				{
+					if (projectile.frame != frameArray[frameArray.Length - 1])
+					{
+						projectile.frame = frameArray[currentFrameIndex + 1];
+					}
+					else if (transitionFrameCount >= frameArray.Length)
+					{
+						return; //end looping animation
+					}
+					else
+					{
+						projectile.frame = frameArray[transitionFrameCount];
+					}
+				}
+				return;
+			}
+			else //back-and-forth looping animation
+			{
+				if (projectile.frameCounter == ticksBetweenFrames)
+				{
+					if (projectile.frame != frameArray[frameArray.Length - 1])
+					{
+						if (backAndForthVariable == true) //reverse mode
+						{
+							projectile.frame = frameArray[currentFrameIndex - 1];
+							return;
+						}
+						else //forward mode
+						{
+							projectile.frame = frameArray[currentFrameIndex + 1];
+							return;
+						}
+					}
+					else if (transitionFrameCount >= frameArray.Length)
+					{
+						return; //end looping animation
+					}
+					else if (projectile.frame == frameArray[transitionFrameCount])
+					{
+						backAndForthVariable = false; //set to forward mode
+						projectile.frame = frameArray[currentFrameIndex + 1];
+						return;
+					}
+					else
+					{
+						backAndForthVariable = true;
+						projectile.frame = frameArray[currentFrameIndex - 1];
+					}
+				}
+
+
+			}
+
+
 		}
+
 
 		/// <summary>
 		/// Moves the projectile towards a point, accepts additional (float) parameters for maximum velocity, acceleration, deceleration, and stop distance.  
@@ -121,7 +236,7 @@ namespace SleepyGangMiniMod.Projectiles
 		/// Negative values may cause weird, unintended behavior.
 		/// </para>
 		/// </summary>
-		public void SGProjectileMoveTowardsPoint(Vector2 targetPoint, float maxVelocity, float acceleration, float deceleration, float stopDistance)
+		public void SGProjectileMoveTowardsPoint(Vector2 targetPoint, float maxVelocity = 0, float acceleration = 1f, float deceleration = 3f, float stopDistance = 0f)
 		{
 			float slopeRise = targetPoint.Y - projectile.position.Y;
 			float slopeRun = targetPoint.X - projectile.position.X;

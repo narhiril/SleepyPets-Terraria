@@ -59,11 +59,9 @@ namespace SleepyGangMiniMod.Projectiles
 		}
 
 		/// <summary>
-		/// Animates a loop between the two specified frames at a specified speed, with optional parameters for number of non-looping transition frames and back-and-forth style.
+		/// Animates a loop between the two specified frames at a specified speed, with optional parameter for number of non-looping transition frames.
 		/// <para>
-		/// Back-and-forth mode requires that an additional flag be passed as the backAndForthVariable argument, or else it will not function properly.</para>
-		/// </summary>
-		public void SGProjectileAnimateBetweenFrames(int firstAnimationFrameIndex, int lastAnimationFrameIndex, int ticksBetweenFrames, int transitionFrameCount = 0, bool backAndForthMode = false, bool backAndForthVariable = false)
+		public void SGProjectileAnimateBetweenFrames(int firstAnimationFrameIndex, int lastAnimationFrameIndex, int ticksBetweenFrames, int transitionFrameCount = 0)
 		{
 			if (firstAnimationFrameIndex >= lastAnimationFrameIndex) //input validation
 			{
@@ -72,13 +70,59 @@ namespace SleepyGangMiniMod.Projectiles
 			}
 
 			projectile.frameCounter++;
-			if (projectile.frameCounter > ticksBetweenFrames) //reset counter
-			{
-				projectile.frameCounter = 0;
-			}
+
 			if (projectile.frame < firstAnimationFrameIndex || projectile.frame > lastAnimationFrameIndex) //check bounds
 			{
 				projectile.frame = firstAnimationFrameIndex;
+				return;
+			}
+
+			if (projectile.frameCounter > ticksBetweenFrames) //reset counter
+			{
+				projectile.frameCounter = 0;
+				return;
+			}
+
+			if (projectile.frameCounter == ticksBetweenFrames) //increment frame
+			{
+				if (projectile.frame != lastAnimationFrameIndex)
+				{
+						projectile.frame += 1;
+				}
+				else if (transitionFrameCount >= (lastAnimationFrameIndex - firstAnimationFrameIndex))
+				{
+						return; //end looping animation
+				}
+				else
+				{
+						projectile.frame = firstAnimationFrameIndex + transitionFrameCount;
+				}
+			}
+		}
+		/// <summary>
+		/// Animates a loop between the two specified frames at a specified speed, with optional parameters for number of non-looping transition frames and back-and-forth style.
+		/// <para>
+		/// Back-and-forth mode requires that an additional flag be passed by reference as the backAndForthVariable argument.</para>
+		/// </summary>
+		public void SGProjectileAnimateBetweenFrames(int firstAnimationFrameIndex, int lastAnimationFrameIndex, ref bool backAndForthVariable, int ticksBetweenFrames, int transitionFrameCount = 0, bool backAndForthMode = true)
+		{
+			if (firstAnimationFrameIndex >= lastAnimationFrameIndex) //input validation
+			{
+				projectile.frame = firstAnimationFrameIndex;
+				return;
+			}
+
+			projectile.frameCounter++;
+
+			if (projectile.frame < firstAnimationFrameIndex || projectile.frame > lastAnimationFrameIndex) //check bounds
+			{
+				projectile.frame = firstAnimationFrameIndex;
+				return;
+			}
+
+			if (projectile.frameCounter > ticksBetweenFrames) //reset counter
+			{
+				projectile.frameCounter = 0;
 				return;
 			}
 
@@ -105,7 +149,13 @@ namespace SleepyGangMiniMod.Projectiles
 			{
 				if (projectile.frameCounter == ticksBetweenFrames)
 				{
-					if (projectile.frame != lastAnimationFrameIndex)
+					if (projectile.frame == firstAnimationFrameIndex + transitionFrameCount)
+					{
+							backAndForthVariable = false; //set to forward mode
+							projectile.frame += 1;
+						return;
+					}
+					else if (projectile.frame != lastAnimationFrameIndex)
 					{
 						if (backAndForthVariable == true) //reverse mode
 						{
@@ -122,15 +172,9 @@ namespace SleepyGangMiniMod.Projectiles
 					{
 						return; //end looping animation
 					}
-					else if (projectile.frame == firstAnimationFrameIndex + transitionFrameCount)
-					{
-						backAndForthVariable = false; //set to forward mode
-						projectile.frame += 1;
-						return;
-					}
 					else
 					{
-						backAndForthVariable = true;
+						backAndForthVariable = true; //set to reverse mode
 						projectile.frame -= 1;
 					}
 				}
@@ -140,11 +184,55 @@ namespace SleepyGangMiniMod.Projectiles
 		}
 
 		/// <summary>
-		/// Animates a loop from a one-dimensional integer array of frame numbers.  Accepts additional arguments for transition frames and "back-and-forth" style animation loops.
-		/// <para>
-		/// Back-and-forth mode requires that an additional flag be passed as the backAndForthVariable argument, or else it will not function properly.</para>
+		/// Animates a loop from a one-dimensional integer array of frame numbers.  Accepts an additional argument for transition frames.
 		/// </summary>
-		public void SGProjectileAnimateFromArray(int[] frameArray, int ticksBetweenFrames, int transitionFrameCount = 0, bool backAndForthMode = false, bool backAndForthVariable = false)
+		public void SGProjectileAnimateFromArray(int[] frameArray, int ticksBetweenFrames, int transitionFrameCount = 0)
+		{
+			int currentFrameIndex = frameArray[0];
+			if (frameArray.Length < 2) //input validation
+			{
+				projectile.frame = frameArray[0];
+				return;
+			}
+
+			projectile.frameCounter++;
+			if (projectile.frameCounter > ticksBetweenFrames) //reset counter
+			{
+				projectile.frameCounter = 0;
+			}
+
+			for (int i = 0; i < frameArray.Length; i++) //find current frame in array, will default to last frame if not found
+			{
+				if (projectile.frame == frameArray[i] || i == frameArray.Length)
+				{
+					currentFrameIndex = frameArray[i];
+					break;
+				}
+			}
+
+			if (projectile.frameCounter == ticksBetweenFrames) //increment frame
+			{
+				if (projectile.frame != frameArray[frameArray.Length - 1])
+				{
+					projectile.frame = frameArray[currentFrameIndex + 1];
+				}
+				else if (transitionFrameCount >= frameArray.Length)
+				{
+					return; //end looping animation
+				}
+				else
+				{
+					projectile.frame = frameArray[transitionFrameCount];
+				}
+			}
+		}
+
+			/// <summary>
+			/// Animates a loop from a one-dimensional integer array of frame numbers.  Accepts additional arguments for transition frames and "back-and-forth" style animation loops.
+			/// <para>
+			/// Back-and-forth mode requires that an additional flag be passed as the backAndForthVariable argument, or else it will not function properly.</para>
+			/// </summary>
+		public void SGProjectileAnimateFromArray(int[] frameArray, ref bool backAndForthVariable, int ticksBetweenFrames, int transitionFrameCount = 0, bool backAndForthMode = true)
 		{
 			int currentFrameIndex = frameArray[0];
 			if (frameArray.Length < 2) //input validation

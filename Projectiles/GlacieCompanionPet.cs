@@ -15,7 +15,7 @@ namespace SleepyGangMiniMod.Projectiles
 		protected bool doCollideFlag = false;
 		protected bool useGroundMovement = false;
 		protected bool isAsleep = false;
-		//protected bool animationReversed = false; //not currently used 
+		protected bool animationReversed = false;
 		protected int aiStatePrevious;
 		protected int firstAnimationFrameIndex;
 		protected int lastAnimationFrameIndex;
@@ -175,8 +175,8 @@ namespace SleepyGangMiniMod.Projectiles
 					}
 					//animation stuff
 					firstAnimationFrameIndex = 1; //idle animation
-					lastAnimationFrameIndex = 2;
-					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 14);
+					lastAnimationFrameIndex = 3;
+					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, ref animationReversed, 14, 0, true);
 					SGProjectileFacePlayer(player, false, 40f);
 					break;
 				case 1: //flying or falling
@@ -271,6 +271,8 @@ namespace SleepyGangMiniMod.Projectiles
 					}
 					else
 					{
+						aiState = 0;
+						projectile.ai[0] = 0f;
 						goto case 0; //return to idle
 					}
 					//break;

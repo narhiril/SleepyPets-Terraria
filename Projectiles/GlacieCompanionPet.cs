@@ -15,6 +15,7 @@ namespace SleepyGangMiniMod.Projectiles
 		protected bool doCollideFlag = false;
 		protected bool useGroundMovement = false;
 		protected bool isAsleep = false;
+		protected bool isStuck = false;
 		protected bool animationReversed = false;
 		protected int aiStatePrevious;
 		protected int firstAnimationFrameIndex;
@@ -59,13 +60,13 @@ namespace SleepyGangMiniMod.Projectiles
 
 
 			/*
-			 *This 'if' tree checks distance thresholds to determine 1) whether or not to move towards the player and 2) if so, how
+			 *This 'if' tree checks distance thresholds to determine whether or not to move towards the player
 			*/
 
 			if ((Math.Abs(player.position.X - projectile.position.X) > 2550) || (Math.Abs(player.position.Y - projectile.position.Y) > 2550)) //if too far, teleport to owner
 			{
 				SGProjectileMoveTowardsPoint(player.position, 0f, 0f, 0f, 0f); //teleport
-				//projectile.velocity.X = player.velocity.X;
+				//projectile.velocity.X = player.velocity.X; //decided to cut this, for now anyway
 				//projectile.velocity.Y = player.velocity.Y;
 				aiState = 1;
 				isAsleep = false;
@@ -73,11 +74,11 @@ namespace SleepyGangMiniMod.Projectiles
 				projectile.frameCounter = 0;
 				return;
 			}
-			else if (aiState == 5) //special ai state check
+			else if (aiState == 5 || aiState == 6)
 			{
-				goto AiStateSwitch;
+				goto AIStateSwitch; //skip the usual movement checks for special ai states that ignore them
 			}
-			else if ((Math.Abs(player.position.X - projectile.position.X) + Math.Abs(player.position.Y - projectile.position.Y)) > 750) //seek out owner (no collide)
+			else if ((Math.Abs(player.position.X - projectile.position.X) + Math.Abs(player.position.Y - projectile.position.Y)) > 750) //seek out owner (no-collide)
 			{
 				isAsleep = false;
 				projectile.tileCollide = false;
@@ -87,32 +88,22 @@ namespace SleepyGangMiniMod.Projectiles
 			}
 			else if (!isAsleep && ((Math.Abs(player.position.X - projectile.position.X) > 200) || (Math.Abs(player.position.Y - projectile.position.Y) > 300))) //seek out owner
 			{
-				projectile.tileCollide = doCollideFlag;
+				projectile.tileCollide = doCollideFlag; //this prevents an abrupt switch from no-collide to collide when crossing this distance threshold
 				isMovingTowardsPlayer = true;
-				aiState = 2;
+				aiState = 2; //if this doesn't get overridden by a movement check, it will end up setting doCollideFlag to true;
 			}
 			else
 			{
 				projectile.tileCollide = doCollideFlag;
 				isMovingTowardsPlayer = false;
+				isStuck = false;
 			}
 
-
 			/*
-			 * 
-			 * The following 'if' tree and 'switch' statement handle the pet's ai state.
-			 * 
-			 * 0 = idle, standard animation
-			 * 1 = flying or falling
-			 * 2 = running
-			 * 3 = idle, open eyes animation
-			 * 4 = idle, sleeping animation
-			 * 5 = special animation state, waking up
-			 * 
+			 * This 'if' tree performs movement checks, updating aiState if necessary
 			*/
 
-
-			if ((Math.Abs(projectile.velocity.Y) > 2f)) //if falling or flying on Y axis
+			if (isStuck || Math.Abs(projectile.velocity.Y) > 2f || (aiState != 2 && Math.Abs(projectile.velocity.Y) > 0.25f)) //if flying or falling
 			{
 				aiState = 1;
 			}
@@ -120,21 +111,36 @@ namespace SleepyGangMiniMod.Projectiles
 			{
 				aiState = 2;
 			}
-			else if ((Math.Abs(projectile.velocity.X) <= 0.05f) && (Math.Abs(projectile.velocity.Y) <= 0.05f))
+			else //not moving
 			{
 				if (isAsleep)
 				{
 					aiState = 4;
 				}
-				else if (!isMovingTowardsPlayer && (aiState < 3)) //if not moving and not in special animation
+				else if (!isMovingTowardsPlayer && (aiState < 3)) //if not seeking player and not in special animation
 				{
-					aiState = 0; //aiState = 3 and aiState = 4 are idle animations that are handled as special variants of aiState = 0
+					aiState = 0;
 				}
 				projectile.velocity.X = 0f;
 				projectile.velocity.Y = 0f;
 			}
 
-			AiStateSwitch:
+		/*
+		 * 
+		 * The following 'switch' statement handle the pet's ai state.
+		 * 
+		 * 0 = idle, standard animation
+		 * 1 = flying or falling
+		 * 2 = running
+		 * 3 = idle, open eyes animation
+		 * 4 = idle, sleeping animation
+		 * 5 = special animation state, waking up (unfinished)
+		 * 6 = special animation state #2 (planned, not yet implemented)
+		 * 
+		 * 
+		*/
+	
+		AIStateSwitch:
 			switch (aiState)
 			{
 				case 0: //idle
@@ -177,7 +183,7 @@ namespace SleepyGangMiniMod.Projectiles
 					firstAnimationFrameIndex = 1; //idle animation
 					lastAnimationFrameIndex = 3;
 					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, ref animationReversed, 14, 0, true);
-					SGProjectileFacePlayer(player, false, 40f);
+					SGProjectileFacePlayer(player, false, 20f);
 					break;
 				case 1: //flying or falling
 					useGroundMovement = false;
@@ -194,7 +200,8 @@ namespace SleepyGangMiniMod.Projectiles
 					SGProjectileFacePlayer(player, false, 40f);
 					break;
 				case 2: //running
-					isMovingTowardsPlayer = true;
+					isStuck = false;
+					isMovingTowardsPlayer = true; //this supercedes earlier movement checks, it prevents some odd behavior
 					projectile.tileCollide = true;
 					doCollideFlag = true;
 					isSpriteRotated = false;
@@ -242,6 +249,7 @@ namespace SleepyGangMiniMod.Projectiles
 						int sleepyDust = Dust.NewDust(new Vector2(projectile.position.X + 5f, projectile.position.Y - 10f), 10, 10, mod.DustType("SleepyParticles"), 0f, 0f, 0, new Color(5, 180, 200), 1f);
 					}
 					//needs wakeup check that starts aiState = 5
+					//projectile.frameCounter = 0;
 					//animation stuff
 					firstAnimationFrameIndex = 0;
 					lastAnimationFrameIndex = 0;
@@ -260,6 +268,7 @@ namespace SleepyGangMiniMod.Projectiles
 					SGProjectileFacePlayer(player, false, 20f);
 					if (projectile.ai[0] < 0.05f)
 					{
+						aiStatePrevious = 5; //this is to prevent the projectile.ai[0] reset from MiscAIChecks that would usually accompany an aiState change 
 						//wakeup exclamation dust
 						//play sound
 					}
@@ -275,7 +284,20 @@ namespace SleepyGangMiniMod.Projectiles
 						projectile.ai[0] = 0f;
 						goto case 0; //return to idle
 					}
+					//break; //not necessary here
+				case 6: //not yet fully implemented
+					isAsleep = false;
+					isMovingTowardsPlayer = false;
+					projectile.tileCollide = true;
+					doCollideFlag = true;
+					//animation stuff
+					firstAnimationFrameIndex = 0; //todo, needs new sprite(s) on sprite sheet
+					lastAnimationFrameIndex = 0;
+					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
+					SGProjectileFacePlayer(player, false, 40f);
+					goto default; //placeholder, remove when fully implemented
 					//break;
+
 
 			}
 
@@ -294,12 +316,20 @@ namespace SleepyGangMiniMod.Projectiles
 						{
 							projectile.velocity.Y -= 0.3f * (2f + projectile.ai[1]); //bounce up
 							projectile.ai[1] += 1f; //make next bounce stronger
-							if (projectile.ai[1] > 5f)
+							if (projectile.ai[1] > 7f)
 							{
-								projectile.ai[1] = 5f; //max bounce
+								projectile.ai[1] = 7f;
+								projectile.position.Y -= 4f;
+								projectile.tileCollide = false;
+								doCollideFlag = false;
+								projectile.velocity.Y -= (maxSpeed / 3f); //rocket up
+								aiState = 1;
+								useGroundMovement = false;
+								isStuck = true;
+								SGProjectileMoveTowardsPoint(new Vector2(player.position.X, player.position.Y - (player.height + 5f)), maxSpeed, 1f, 3f, 60f);
 							}
 						}
-						else if (!Collision.SolidCollision(projectile.position, projectile.width, projectile.height)) //if airborne
+						if (!Collision.SolidCollision(projectile.position, projectile.width, projectile.height) && !isStuck) //if airborne
 						{
 							projectile.velocity.Y += 0.3f; //gravity
 						}
@@ -327,11 +357,12 @@ namespace SleepyGangMiniMod.Projectiles
 				}
 				else // no-collide movement
 				{
-					SGProjectileMoveTowardsPoint(new Vector2(player.position.X, player.position.Y - (player.height + 10f)), maxSpeed, 1f, 3f, 60f); //seek out point above player, prevents some instances of getting stuck in ground
+					SGProjectileMoveTowardsPoint(new Vector2(player.position.X, player.position.Y - (player.height + 10f)), maxSpeed, 1f, 3f, 50f); //seek out point above player, prevents some instances of getting stuck in ground
 				}
 			}
 			else if (!Collision.SolidCollision(projectile.position, projectile.width, projectile.height)) //if in the air, but not moving towards player
 			{
+				isStuck = false;
 				if (projectile.velocity.Y < 10f)
 				{
 					projectile.velocity.Y += 0.3f; //gravity
@@ -339,9 +370,17 @@ namespace SleepyGangMiniMod.Projectiles
 			}
 			else //if not moving towards player and also not flying/falling
 			{
-				if (doCollideFlag && Collision.SolidCollision(projectile.position, projectile.width, projectile.height) && Collision.SolidCollision(new Vector2(projectile.position.X, projectile.position.Y - (projectile.height / 2f)), projectile.width, projectile.height))
+				isStuck = false;
+				if (doCollideFlag && Collision.SolidCollision(projectile.position, projectile.width, projectile.height) && Collision.SolidCollision(new Vector2(projectile.position.X, projectile.position.Y - (projectile.height / 6f)), projectile.width, projectile.height))
 				{
-					projectile.position.Y -= projectile.height / 6f; //this check is to prevent getting stuck in the floor when coming out of no-collide mode
+					if (projectile.position.Y < (player.position.Y - 50f)) //this check is to prevent getting stuck in the floor or ceiling when coming out of no-collide mode
+					{
+						projectile.position.Y += projectile.height / 6f;
+					}
+					else
+					{
+						projectile.position.Y -= projectile.height / 6f; 
+					}
 				}
 				if (Math.Abs(projectile.velocity.X) > 0.01f) //these next two if statements fix an uncommon bug where the pet would go soaring off into the sky during an incomplete no-collide movement
 				{
@@ -364,6 +403,7 @@ namespace SleepyGangMiniMod.Projectiles
 			if (aiStatePrevious != aiState) //on ai state change
 			{
 				projectile.frameCounter = 0;
+				projectile.ai[0] = 0f;
 			}
 			
 			aiStatePrevious = aiState; //update this after it's been checked

@@ -245,15 +245,30 @@ namespace SleepyGangMiniMod.Projectiles
 					projectile.ai[0] += 0.03f;
 					if (projectile.ai[0] > 3f)
 					{
-						projectile.ai[0] = 0f;
-						int sleepyDust = Dust.NewDust(new Vector2(projectile.position.X + 5f, projectile.position.Y - 10f), 10, 10, mod.DustType("SleepyParticles"), 0f, 0f, 0, new Color(5, 180, 200), 1f);
+						projectile.ai[1] += 1f;
+						projectile.ai[0] -= 0.60f;
+						_ = Dust.NewDust(new Vector2(projectile.position.X + 5f + (3*projectile.ai[1]), projectile.position.Y - 10f - (2*projectile.ai[1])), 10, 10, mod.DustType("SleepyParticles"), 0f, 0f, 0, new Color(5, 180, 200), 1f);
+						if (projectile.ai[1] > 2f)
+						{
+							projectile.ai[1] = 0f;
+							projectile.ai[0] = 0f;
+						}
 					}
-					//needs wakeup check that starts aiState = 5
-					//projectile.frameCounter = 0;
+					if (Math.Abs(Main.MouseWorld.X - projectile.position.X) < projectile.width && Math.Abs(Main.MouseWorld.Y - projectile.position.Y) < projectile.height) //wake up with mouse
+					{
+						isAsleep = false;
+						aiState = 5;
+						projectile.ai[0] = 0f;
+						projectile.ai[1] = 0f;
+						projectile.frameCounter = 0;
+						//sound
+						_ = Dust.NewDust(new Vector2(projectile.position.X + (-10f * projectile.spriteDirection), projectile.position.Y - 10f), 10, 10, mod.DustType("WakeupParticles"));
+						break;
+					}
 					//animation stuff
 					firstAnimationFrameIndex = 0;
 					lastAnimationFrameIndex = 0;
-					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
+					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 7);
 					break;
 				case 5: //wakeup sequence, not yet fully implemented
 					isAsleep = false;
@@ -266,14 +281,8 @@ namespace SleepyGangMiniMod.Projectiles
 					lastAnimationFrameIndex = 8;
 					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
 					SGProjectileFacePlayer(player, false, 20f);
-					if (projectile.ai[0] < 0.05f)
-					{
-						aiStatePrevious = 5; //this is to prevent the projectile.ai[0] reset from MiscAIChecks that would usually accompany an aiState change 
-						//wakeup exclamation dust
-						//play sound
-					}
-					projectile.ai[0] += 0.1f;
-					projectile.rotation = 0.15f * (float)Math.Sin(projectile.ai[0] - 2f);
+					projectile.ai[0] += 0.03f;
+					projectile.rotation = 0.15f * (float)Math.Sin(projectile.ai[0] * 5f);
 					if (projectile.ai[0] < 5f)
 					{
 						goto MiscAIChecks; //skip movement checks
@@ -282,9 +291,8 @@ namespace SleepyGangMiniMod.Projectiles
 					{
 						aiState = 0;
 						projectile.ai[0] = 0f;
-						goto case 0; //return to idle
 					}
-					//break; //not necessary here
+					break;
 				case 6: //not yet fully implemented
 					isAsleep = false;
 					isMovingTowardsPlayer = false;
@@ -295,8 +303,7 @@ namespace SleepyGangMiniMod.Projectiles
 					lastAnimationFrameIndex = 0;
 					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
 					SGProjectileFacePlayer(player, false, 40f);
-					goto default; //placeholder, remove when fully implemented
-					//break;
+					break;
 
 
 			}
@@ -404,6 +411,7 @@ namespace SleepyGangMiniMod.Projectiles
 			{
 				projectile.frameCounter = 0;
 				projectile.ai[0] = 0f;
+				projectile.ai[1] = 0f;
 			}
 			
 			aiStatePrevious = aiState; //update this after it's been checked

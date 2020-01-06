@@ -10,9 +10,9 @@ namespace SleepyGangMiniMod.Projectiles
 	{
 
 		/// <summary>
-		/// Flips projectile sprite to face a target player
+		/// Flips projectile (and sprite) to face a target player
 		/// </summary>
-		public void SGProjectileFacePlayer(Player targetPlayer, bool spriteIsFacingRight, float bufferThreshold)
+		public void SGProjectileFacePlayer(Player targetPlayer, bool spriteIsFacingRight = true, float bufferThreshold = 0f)
 		{
 			switch (spriteIsFacingRight)
 			{

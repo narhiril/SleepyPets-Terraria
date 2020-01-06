@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Terraria;
 //using Terraria.ID;
-//using Terraria.ModLoader;
+using Terraria.ModLoader;
 
 namespace SleepyGangMiniMod.Projectiles
 {
@@ -47,7 +47,7 @@ namespace SleepyGangMiniMod.Projectiles
 		{
 			DisplayName.SetDefault("Sleepy Ice Buddy");
 			Main.projPet[projectile.type] = true;
-			Main.projFrames[projectile.type] = 14;
+			Main.projFrames[projectile.type] = 16;
 			//projectile.width = 50;
 			//projectile.height = 40;
 		}
@@ -261,7 +261,7 @@ namespace SleepyGangMiniMod.Projectiles
 						projectile.ai[0] = 0f;
 						projectile.ai[1] = 0f;
 						projectile.frameCounter = 0;
-						//sound
+						Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/GlacieNoises"), projectile.position);
 						_ = Dust.NewDust(new Vector2(projectile.position.X + (-10f * projectile.spriteDirection), projectile.position.Y - 10f), 10, 10, mod.DustType("WakeupParticles"));
 						break;
 					}
@@ -277,13 +277,13 @@ namespace SleepyGangMiniMod.Projectiles
 					doCollideFlag = true;
 					isSpriteRotated = true;
 					//animation stuff
-					firstAnimationFrameIndex = 6; //this needs to be fixed, sprite sheet needs a new frame
-					lastAnimationFrameIndex = 8;
+					firstAnimationFrameIndex = 14;
+					lastAnimationFrameIndex = 15;
 					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 6);
 					SGProjectileFacePlayer(player, false, 20f);
 					projectile.ai[0] += 0.03f;
 					projectile.rotation = 0.15f * (float)Math.Sin(projectile.ai[0] * 5f);
-					if (projectile.ai[0] < 5f)
+					if (projectile.ai[0] < 3f)
 					{
 						goto MiscAIChecks; //skip movement checks
 					}

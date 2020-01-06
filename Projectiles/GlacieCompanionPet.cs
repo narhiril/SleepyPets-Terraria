@@ -334,7 +334,7 @@ namespace SleepyGangMiniMod.Projectiles
 								aiState = 1;
 								useGroundMovement = false;
 								isStuck = true;
-								SGProjectileMoveTowardsPoint(new Vector2(player.position.X, player.position.Y - (player.height + 5f)), maxSpeed, 1f, 3f, 60f);
+								//SGProjectileMoveTowardsPoint(new Vector2(player.position.X, player.position.Y - (player.height + 5f)), maxSpeed, 1f, 3f, 60f);
 							}
 						}
 						if (!Collision.SolidCollision(projectile.position, projectile.width, projectile.height) && !isStuck) //if airborne
@@ -352,7 +352,24 @@ namespace SleepyGangMiniMod.Projectiles
 					}
 					else //aerial movement
 					{
-						projectile.ai[1] = 0f; //reset bounce strength modifier
+						//projectile.ai[1] = 0f; //reset bounce strength modifier
+						if ((Math.Abs(projectile.velocity.X) < 0.1f) && (Math.Abs(projectile.velocity.Y) < 0.1f)) //detect if stuck on terrain
+						{
+							projectile.velocity.Y -= 0.3f * (2f + projectile.ai[1]); //bounce up
+							projectile.ai[1] += 1f; //make next bounce stronger
+							if (projectile.ai[1] > 7f)
+							{
+								projectile.ai[1] = 7f;
+								projectile.position.Y -= 4f;
+								projectile.tileCollide = false;
+								doCollideFlag = false;
+								projectile.velocity.Y -= (maxSpeed / 3f); //rocket up
+								aiState = 1;
+								useGroundMovement = false;
+								isStuck = true;
+								//SGProjectileMoveTowardsPoint(new Vector2(player.position.X, player.position.Y - (player.height + 5f)), maxSpeed, 1f, 3f, 60f);
+							}
+						}
 						if (projectile.wet)
 						{
 							SGProjectileMoveTowardsPoint(new Vector2(player.position.X, (player.position.Y + (player.height / 2f))), (maxSpeed * 0.75f), 0.8f, 4f, 100f);

@@ -76,7 +76,7 @@ namespace SleepyGangMiniMod.Projectiles
 			}
 			else if (aiState == 5 || aiState == 6)
 			{
-				goto AIStateSwitch; //skip the usual movement checks for special ai states that ignore them
+				goto AIStateSwitch; //skip the usual movement checks for special, stationary ai states
 			}
 			else if ((Math.Abs(player.position.X - projectile.position.X) + Math.Abs(player.position.Y - projectile.position.Y)) > 750) //seek out owner (no-collide)
 			{
@@ -88,9 +88,9 @@ namespace SleepyGangMiniMod.Projectiles
 			}
 			else if (!isAsleep && ((Math.Abs(player.position.X - projectile.position.X) > 200) || (Math.Abs(player.position.Y - projectile.position.Y) > 300))) //seek out owner
 			{
-				projectile.tileCollide = doCollideFlag; //this prevents an abrupt switch from no-collide to collide when crossing this distance threshold
+				projectile.tileCollide = doCollideFlag; //this prevents an abrupt switch from no-collide to collide when crossing the distance threshold
 				isMovingTowardsPlayer = true;
-				aiState = 2; //if this doesn't get overridden by a movement check, it will end up setting doCollideFlag to true;
+				aiState = 2; //if this doesn't get overwritten by a movement check, it will end up setting doCollideFlag to true;
 			}
 			else
 			{
@@ -127,7 +127,7 @@ namespace SleepyGangMiniMod.Projectiles
 
 		/*
 		 * 
-		 * The following 'switch' statement handle the pet's ai state.
+		 * The following 'switch' statement handles the pet's ai state.
 		 * 
 		 * 0 = idle, standard animation
 		 * 1 = flying or falling

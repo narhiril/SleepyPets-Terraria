@@ -200,7 +200,7 @@ namespace SleepyGangMiniMod.Projectiles
 					SGProjectileFacePlayer(player, false, 40f);
 					break;
 				case 2: //running
-					isStuck = false;
+					//isStuck = false;
 					isMovingTowardsPlayer = true; //this supercedes earlier movement checks, it prevents some odd behavior
 					projectile.tileCollide = true;
 					doCollideFlag = true;
@@ -263,6 +263,7 @@ namespace SleepyGangMiniMod.Projectiles
 						projectile.frameCounter = 0;
 						Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/GlacieNoises"), projectile.position);
 						_ = Dust.NewDust(new Vector2(projectile.position.X + (-10f * projectile.spriteDirection), projectile.position.Y - 10f), 10, 10, mod.DustType("WakeupParticles"));
+						SGProjectileFacePlayer(player, false, 20f);
 						break;
 					}
 					//animation stuff

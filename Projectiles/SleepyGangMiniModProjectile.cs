@@ -185,6 +185,8 @@ namespace SleepyGangMiniMod.Projectiles
 
 		/// <summary>
 		/// Animates a loop from a one-dimensional integer array of frame numbers.  Accepts an additional argument for transition frames.
+		///<para></para>
+		/// This overload does not require a reference integer, but isn't as efficient.  Use it sparingly, with a small frameArray.
 		/// </summary>
 		public void SGProjectileAnimateFromArray(int[] frameArray, int ticksBetweenFrames, int transitionFrameCount = 0)
 		{
@@ -227,11 +229,49 @@ namespace SleepyGangMiniMod.Projectiles
 			}
 		}
 
-			/// <summary>
-			/// Animates a loop from a one-dimensional integer array of frame numbers.  Accepts additional arguments for transition frames and "back-and-forth" style animation loops.
-			/// <para>
-			/// Back-and-forth mode requires that an additional flag be passed as the backAndForthVariable argument, or else it will not function properly.</para>
-			/// </summary>
+		/// <summary>
+		/// Animates a loop from a one-dimensional integer array of frame numbers.  Accepts an additional argument for transition frames.
+		/// </summary>
+		public void SGProjectileAnimateFromArray(int[] frameArray, int ticksBetweenFrames, ref int currentFrameIndex, int transitionFrameCount = 0)
+		{
+			if (frameArray.Length < 2) //input validation
+			{
+				projectile.frame = frameArray[0];
+				currentFrameIndex = 0;
+				return;
+			}
+
+			projectile.frameCounter++;
+			if (projectile.frameCounter > ticksBetweenFrames) //reset counter
+			{
+				projectile.frameCounter = 0;
+			}
+
+
+			if (projectile.frameCounter == ticksBetweenFrames) //increment frame
+			{
+				if (projectile.frame != frameArray[frameArray.Length - 1])
+				{
+					projectile.frame = frameArray[currentFrameIndex + 1];
+					currentFrameIndex += 1;
+				}
+				else if (transitionFrameCount >= frameArray.Length)
+				{
+					return; //end looping animation
+				}
+				else
+				{
+					projectile.frame = frameArray[transitionFrameCount];
+					currentFrameIndex = 0;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Animates a loop from a one-dimensional integer array of frame numbers.  Accepts additional arguments for transition frames and "back-and-forth" style animation loops.
+		/// <para>
+		/// Back-and-forth mode requires that an additional flag be passed as the backAndForthVariable argument, or else it will not function properly.</para>
+		/// </summary>
 		public void SGProjectileAnimateFromArray(int[] frameArray, ref bool backAndForthVariable, int ticksBetweenFrames, int transitionFrameCount = 0, bool backAndForthMode = true)
 		{
 			int currentFrameIndex = frameArray[0];

@@ -20,6 +20,7 @@ namespace SleepyGangMiniMod.Projectiles
 		protected int aiStatePrevious;
 		protected int firstAnimationFrameIndex;
 		protected int lastAnimationFrameIndex;
+		protected string wakeupSound = "Sounds/GlacieNoises";
 
 		public override void SetDefaults()
 		{
@@ -72,7 +73,7 @@ namespace SleepyGangMiniMod.Projectiles
 				isAsleep = false;
 				isMovingTowardsPlayer = false;
 				projectile.frameCounter = 0;
-				return;
+				goto MiscAIChecks;
 			}
 			else if (aiState == 5 || aiState == 6)
 			{
@@ -261,7 +262,7 @@ namespace SleepyGangMiniMod.Projectiles
 						projectile.ai[0] = 0f;
 						projectile.ai[1] = 0f;
 						projectile.frameCounter = 0;
-						Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/GlacieNoises"), projectile.position);
+						Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, wakeupSound), projectile.position);
 						_ = Dust.NewDust(new Vector2(projectile.position.X + (-10f * projectile.spriteDirection), projectile.position.Y - 10f), 10, 10, mod.DustType("WakeupParticles"));
 						SGProjectileFacePlayer(player, false, 20f);
 						break;
@@ -430,10 +431,9 @@ namespace SleepyGangMiniMod.Projectiles
 				projectile.frameCounter = 0;
 				projectile.ai[0] = 0f;
 				projectile.ai[1] = 0f;
+				aiStatePrevious = aiState; //update this after it's been checked
 			}
 			
-			aiStatePrevious = aiState; //update this after it's been checked
-
 			if (!isSpriteRotated) //reset rotation
 			{
 				projectile.rotation = 0f;
@@ -443,6 +443,7 @@ namespace SleepyGangMiniMod.Projectiles
 			{
 				modPlayer.glacieCompanionPet = false;
 			}
+
 			if (modPlayer.glacieCompanionPet) //makes pet buff persistent until dismissed
 			{
 				projectile.timeLeft = 2;

@@ -17,6 +17,7 @@ namespace SleepyGangMiniMod.Projectiles
 		protected bool isAsleep = false;
 		protected bool isStuck = false;
 		protected bool animationReversed = false;
+		protected bool hasPlayedSound = false;
 		protected int aiStatePrevious;
 		protected int firstAnimationFrameIndex;
 		protected int lastAnimationFrameIndex;
@@ -135,7 +136,7 @@ namespace SleepyGangMiniMod.Projectiles
 		 * 2 = running
 		 * 3 = idle, open eyes animation
 		 * 4 = idle, sleeping animation
-		 * 5 = special animation state, waking up (unfinished)
+		 * 5 = special animation state, waking up
 		 * 6 = special animation state #2 (planned, not yet implemented)
 		 * 
 		 * 
@@ -178,12 +179,33 @@ namespace SleepyGangMiniMod.Projectiles
 								projectile.ai[0] = 0f;
 								goto case 4;
 							}
+							else if (!hasPlayedSound && idleAnimationRandomizer <= 4)
+							{
+								hasPlayedSound = true;
+								Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, wakeupSound).WithVolume(0.5f).WithPitchVariance(0.2f), projectile.position);
+							}
+							
 						}
 					}
 					//animation stuff
-					firstAnimationFrameIndex = 1; //idle animation
-					lastAnimationFrameIndex = 3;
-					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, ref animationReversed, 14, 0, true);
+					if (hasPlayedSound)
+					{
+						firstAnimationFrameIndex = 14;
+						lastAnimationFrameIndex = 15;
+						SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 12);
+						projectile.ai[1] += 1f;
+						if (projectile.ai[1] > 90)
+						{
+							projectile.ai[1] = 0;
+							hasPlayedSound = false;
+						}
+					}
+					else
+					{
+						firstAnimationFrameIndex = 1; //idle animation
+						lastAnimationFrameIndex = 3;
+						SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, ref animationReversed, 14, 0, true);
+					}
 					SGProjectileFacePlayer(player, false, 20f);
 					break;
 				case 1: //flying or falling
@@ -263,6 +285,7 @@ namespace SleepyGangMiniMod.Projectiles
 						projectile.ai[1] = 0f;
 						projectile.frameCounter = 0;
 						Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, wakeupSound), projectile.position);
+						hasPlayedSound = true;
 						_ = Dust.NewDust(new Vector2(projectile.position.X + (-10f * projectile.spriteDirection), projectile.position.Y - 10f), 10, 10, mod.DustType("WakeupParticles"));
 						SGProjectileFacePlayer(player, false, 20f);
 						break;
@@ -272,7 +295,7 @@ namespace SleepyGangMiniMod.Projectiles
 					lastAnimationFrameIndex = 0;
 					SGProjectileAnimateBetweenFrames(firstAnimationFrameIndex, lastAnimationFrameIndex, 7);
 					break;
-				case 5: //wakeup sequence, not yet fully implemented
+				case 5: //wakeup sequence
 					isAsleep = false;
 					isMovingTowardsPlayer = false;
 					projectile.tileCollide = true;
@@ -432,6 +455,7 @@ namespace SleepyGangMiniMod.Projectiles
 				projectile.ai[0] = 0f;
 				projectile.ai[1] = 0f;
 				aiStatePrevious = aiState; //update this after it's been checked
+				hasPlayedSound = false;
 			}
 			
 			if (!isSpriteRotated) //reset rotation

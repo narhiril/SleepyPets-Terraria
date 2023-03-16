@@ -17,42 +17,42 @@ namespace SleepyGangMiniMod.Projectiles
 			switch (spriteIsFacingRight)
 			{
 				case false:
-					if (projectile.position.X < targetPlayer.position.X)
+					if (Projectile.position.X < targetPlayer.position.X)
 					{
-						if (Math.Abs(targetPlayer.position.X - projectile.position.X) < bufferThreshold)
+						if (Math.Abs(targetPlayer.position.X - Projectile.position.X) < bufferThreshold)
 						{
-							projectile.spriteDirection = -1;
+							Projectile.spriteDirection = -1;
 						}
-						projectile.direction = 1;
+						Projectile.direction = 1;
 						return;
 					}
 					else
 					{
-						if (Math.Abs(targetPlayer.position.X - projectile.position.X) < bufferThreshold)
+						if (Math.Abs(targetPlayer.position.X - Projectile.position.X) < bufferThreshold)
 						{
-							projectile.spriteDirection = 1;
+							Projectile.spriteDirection = 1;
 						}
-						projectile.direction = -1;
+						Projectile.direction = -1;
 					}
 					break;
 				case true:
 				default:
-					if (projectile.position.X < targetPlayer.position.X)
+					if (Projectile.position.X < targetPlayer.position.X)
 					{
-						if (Math.Abs(targetPlayer.position.X - projectile.position.X) < bufferThreshold)
+						if (Math.Abs(targetPlayer.position.X - Projectile.position.X) < bufferThreshold)
 						{
-							projectile.spriteDirection = 1;
+							Projectile.spriteDirection = 1;
 						}
-						projectile.direction = 1;
+						Projectile.direction = 1;
 						return;
 					}
 					else
 					{
-						if (Math.Abs(targetPlayer.position.X - projectile.position.X) < bufferThreshold)
+						if (Math.Abs(targetPlayer.position.X - Projectile.position.X) < bufferThreshold)
 						{
-							projectile.spriteDirection = -1;
+							Projectile.spriteDirection = -1;
 						}
-						projectile.direction = -1;
+						Projectile.direction = -1;
 					}
 					break;
 			}
@@ -65,29 +65,29 @@ namespace SleepyGangMiniMod.Projectiles
 		{
 			if (firstAnimationFrameIndex >= lastAnimationFrameIndex) //input validation
 			{
-				projectile.frame = firstAnimationFrameIndex;
+				Projectile.frame = firstAnimationFrameIndex;
 				return;
 			}
 
-			projectile.frameCounter++;
+			Projectile.frameCounter++;
 
-			if (projectile.frame < firstAnimationFrameIndex || projectile.frame > lastAnimationFrameIndex) //check bounds
+			if (Projectile.frame < firstAnimationFrameIndex || Projectile.frame > lastAnimationFrameIndex) //check bounds
 			{
-				projectile.frame = firstAnimationFrameIndex;
+				Projectile.frame = firstAnimationFrameIndex;
 				return;
 			}
 
-			if (projectile.frameCounter > ticksBetweenFrames) //reset counter
+			if (Projectile.frameCounter > ticksBetweenFrames) //reset counter
 			{
-				projectile.frameCounter = 0;
+				Projectile.frameCounter = 0;
 				return;
 			}
 
-			if (projectile.frameCounter == ticksBetweenFrames) //increment frame
+			if (Projectile.frameCounter == ticksBetweenFrames) //increment frame
 			{
-				if (projectile.frame != lastAnimationFrameIndex)
+				if (Projectile.frame != lastAnimationFrameIndex)
 				{
-						projectile.frame += 1;
+						Projectile.frame += 1;
 				}
 				else if (transitionFrameCount >= (lastAnimationFrameIndex - firstAnimationFrameIndex))
 				{
@@ -95,7 +95,7 @@ namespace SleepyGangMiniMod.Projectiles
 				}
 				else
 				{
-						projectile.frame = firstAnimationFrameIndex + transitionFrameCount;
+						Projectile.frame = firstAnimationFrameIndex + transitionFrameCount;
 				}
 			}
 		}
@@ -108,31 +108,31 @@ namespace SleepyGangMiniMod.Projectiles
 		{
 			if (firstAnimationFrameIndex >= lastAnimationFrameIndex) //input validation
 			{
-				projectile.frame = firstAnimationFrameIndex;
+				Projectile.frame = firstAnimationFrameIndex;
 				return;
 			}
 
-			projectile.frameCounter++;
+			Projectile.frameCounter++;
 
-			if (projectile.frame < firstAnimationFrameIndex || projectile.frame > lastAnimationFrameIndex) //check bounds
+			if (Projectile.frame < firstAnimationFrameIndex || Projectile.frame > lastAnimationFrameIndex) //check bounds
 			{
-				projectile.frame = firstAnimationFrameIndex;
+				Projectile.frame = firstAnimationFrameIndex;
 				return;
 			}
 
-			if (projectile.frameCounter > ticksBetweenFrames) //reset counter
+			if (Projectile.frameCounter > ticksBetweenFrames) //reset counter
 			{
-				projectile.frameCounter = 0;
+				Projectile.frameCounter = 0;
 				return;
 			}
 
 			if (!backAndForthMode) //standard looping animation
 			{
-				if (projectile.frameCounter == ticksBetweenFrames) //increment frame
+				if (Projectile.frameCounter == ticksBetweenFrames) //increment frame
 				{
-					if (projectile.frame != lastAnimationFrameIndex)
+					if (Projectile.frame != lastAnimationFrameIndex)
 					{
-						projectile.frame += 1;
+						Projectile.frame += 1;
 					}
 					else if (transitionFrameCount >= (lastAnimationFrameIndex - firstAnimationFrameIndex))
 					{
@@ -140,31 +140,31 @@ namespace SleepyGangMiniMod.Projectiles
 					}
 					else
 					{
-						projectile.frame = firstAnimationFrameIndex + transitionFrameCount;
+						Projectile.frame = firstAnimationFrameIndex + transitionFrameCount;
 					}
 				}
 				return;
 			}
 			else //back-and-forth looping animation
 			{
-				if (projectile.frameCounter == ticksBetweenFrames)
+				if (Projectile.frameCounter == ticksBetweenFrames)
 				{
-					if (projectile.frame == firstAnimationFrameIndex + transitionFrameCount)
+					if (Projectile.frame == firstAnimationFrameIndex + transitionFrameCount)
 					{
 							backAndForthVariable = false; //set to forward mode
-							projectile.frame += 1;
+							Projectile.frame += 1;
 						return;
 					}
-					else if (projectile.frame != lastAnimationFrameIndex)
+					else if (Projectile.frame != lastAnimationFrameIndex)
 					{
 						if (backAndForthVariable == true) //reverse mode
 						{
-							projectile.frame -= 1;
+							Projectile.frame -= 1;
 							return;
 						}
 						else //forward mode
 						{
-							projectile.frame += 1;
+							Projectile.frame += 1;
 							return;
 						}
 					}
@@ -175,7 +175,7 @@ namespace SleepyGangMiniMod.Projectiles
 					else
 					{
 						backAndForthVariable = true; //set to reverse mode
-						projectile.frame -= 1;
+						Projectile.frame -= 1;
 					}
 				}
 
@@ -193,30 +193,30 @@ namespace SleepyGangMiniMod.Projectiles
 			int currentFrameIndex = frameArray[0];
 			if (frameArray.Length < 2) //input validation
 			{
-				projectile.frame = frameArray[0];
+				Projectile.frame = frameArray[0];
 				return;
 			}
 
-			projectile.frameCounter++;
-			if (projectile.frameCounter > ticksBetweenFrames) //reset counter
+			Projectile.frameCounter++;
+			if (Projectile.frameCounter > ticksBetweenFrames) //reset counter
 			{
-				projectile.frameCounter = 0;
+				Projectile.frameCounter = 0;
 			}
 
 			for (int i = 0; i < frameArray.Length; i++) //find current frame in array, will default to last frame if not found
 			{
-				if (projectile.frame == frameArray[i] || i == frameArray.Length)
+				if (Projectile.frame == frameArray[i] || i == frameArray.Length)
 				{
 					currentFrameIndex = frameArray[i];
 					break;
 				}
 			}
 
-			if (projectile.frameCounter == ticksBetweenFrames) //increment frame
+			if (Projectile.frameCounter == ticksBetweenFrames) //increment frame
 			{
-				if (projectile.frame != frameArray[frameArray.Length - 1])
+				if (Projectile.frame != frameArray[frameArray.Length - 1])
 				{
-					projectile.frame = frameArray[currentFrameIndex + 1];
+					Projectile.frame = frameArray[currentFrameIndex + 1];
 				}
 				else if (transitionFrameCount >= frameArray.Length)
 				{
@@ -224,7 +224,7 @@ namespace SleepyGangMiniMod.Projectiles
 				}
 				else
 				{
-					projectile.frame = frameArray[transitionFrameCount];
+					Projectile.frame = frameArray[transitionFrameCount];
 				}
 			}
 		}
@@ -236,23 +236,23 @@ namespace SleepyGangMiniMod.Projectiles
 		{
 			if (frameArray.Length < 2) //input validation
 			{
-				projectile.frame = frameArray[0];
+				Projectile.frame = frameArray[0];
 				currentFrameIndex = 0;
 				return;
 			}
 
-			projectile.frameCounter++;
-			if (projectile.frameCounter > ticksBetweenFrames) //reset counter
+			Projectile.frameCounter++;
+			if (Projectile.frameCounter > ticksBetweenFrames) //reset counter
 			{
-				projectile.frameCounter = 0;
+				Projectile.frameCounter = 0;
 			}
 
 
-			if (projectile.frameCounter == ticksBetweenFrames) //increment frame
+			if (Projectile.frameCounter == ticksBetweenFrames) //increment frame
 			{
-				if (projectile.frame != frameArray[frameArray.Length - 1])
+				if (Projectile.frame != frameArray[frameArray.Length - 1])
 				{
-					projectile.frame = frameArray[currentFrameIndex + 1];
+					Projectile.frame = frameArray[currentFrameIndex + 1];
 					currentFrameIndex += 1;
 				}
 				else if (transitionFrameCount >= frameArray.Length)
@@ -261,7 +261,7 @@ namespace SleepyGangMiniMod.Projectiles
 				}
 				else
 				{
-					projectile.frame = frameArray[transitionFrameCount];
+					Projectile.frame = frameArray[transitionFrameCount];
 					currentFrameIndex = 0;
 				}
 			}
@@ -277,19 +277,19 @@ namespace SleepyGangMiniMod.Projectiles
 			int currentFrameIndex = frameArray[0];
 			if (frameArray.Length < 2) //input validation
 			{
-				projectile.frame = frameArray[0];
+				Projectile.frame = frameArray[0];
 				return;
 			}
 
-			projectile.frameCounter++;
-			if (projectile.frameCounter > ticksBetweenFrames) //reset counter
+			Projectile.frameCounter++;
+			if (Projectile.frameCounter > ticksBetweenFrames) //reset counter
 			{
-				projectile.frameCounter = 0;
+				Projectile.frameCounter = 0;
 			}
 
 			for (int i=0; i < frameArray.Length; i++) //find current frame in array, will default to last frame if not found
 			{
-				if (projectile.frame == frameArray[i] || i == frameArray.Length)
+				if (Projectile.frame == frameArray[i] || i == frameArray.Length)
 				{
 					currentFrameIndex = frameArray[i];
 					break;
@@ -298,11 +298,11 @@ namespace SleepyGangMiniMod.Projectiles
 
 			if (!backAndForthMode) //standard looping animation
 			{
-				if (projectile.frameCounter == ticksBetweenFrames) //increment frame
+				if (Projectile.frameCounter == ticksBetweenFrames) //increment frame
 				{
-					if (projectile.frame != frameArray[frameArray.Length - 1])
+					if (Projectile.frame != frameArray[frameArray.Length - 1])
 					{
-						projectile.frame = frameArray[currentFrameIndex + 1];
+						Projectile.frame = frameArray[currentFrameIndex + 1];
 					}
 					else if (transitionFrameCount >= frameArray.Length)
 					{
@@ -310,25 +310,25 @@ namespace SleepyGangMiniMod.Projectiles
 					}
 					else
 					{
-						projectile.frame = frameArray[transitionFrameCount];
+						Projectile.frame = frameArray[transitionFrameCount];
 					}
 				}
 				return;
 			}
 			else //back-and-forth looping animation
 			{
-				if (projectile.frameCounter == ticksBetweenFrames)
+				if (Projectile.frameCounter == ticksBetweenFrames)
 				{
-					if (projectile.frame != frameArray[frameArray.Length - 1])
+					if (Projectile.frame != frameArray[frameArray.Length - 1])
 					{
 						if (backAndForthVariable == true) //reverse mode
 						{
-							projectile.frame = frameArray[currentFrameIndex - 1];
+							Projectile.frame = frameArray[currentFrameIndex - 1];
 							return;
 						}
 						else //forward mode
 						{
-							projectile.frame = frameArray[currentFrameIndex + 1];
+							Projectile.frame = frameArray[currentFrameIndex + 1];
 							return;
 						}
 					}
@@ -336,16 +336,16 @@ namespace SleepyGangMiniMod.Projectiles
 					{
 						return; //end looping animation
 					}
-					else if (projectile.frame == frameArray[transitionFrameCount])
+					else if (Projectile.frame == frameArray[transitionFrameCount])
 					{
 						backAndForthVariable = false; //set to forward mode
-						projectile.frame = frameArray[currentFrameIndex + 1];
+						Projectile.frame = frameArray[currentFrameIndex + 1];
 						return;
 					}
 					else
 					{
 						backAndForthVariable = true;
-						projectile.frame = frameArray[currentFrameIndex - 1];
+						Projectile.frame = frameArray[currentFrameIndex - 1];
 					}
 				}
 
@@ -366,8 +366,8 @@ namespace SleepyGangMiniMod.Projectiles
 		/// </summary>
 		public void SGProjectileMoveTowardsPoint(Vector2 targetPoint, float maxVelocity = 0, float acceleration = 1f, float deceleration = 3f, float stopDistance = 0f)
 		{
-			float slopeRise = targetPoint.Y - projectile.position.Y;
-			float slopeRun = targetPoint.X - projectile.position.X;
+			float slopeRise = targetPoint.Y - Projectile.position.Y;
+			float slopeRun = targetPoint.X - Projectile.position.X;
 			float distanceToTargetX = (float)Math.Abs(slopeRun);
 			float distanceToTargetY = (float)Math.Abs(slopeRise);
 			float distanceToTargetAbsolute = (float)Math.Sqrt(Math.Pow(distanceToTargetX, 2f) + Math.Pow(distanceToTargetY, 2f)); //pythagoras, yay!
@@ -377,69 +377,69 @@ namespace SleepyGangMiniMod.Projectiles
 				{
 					if (acceleration == 0f) //if both maxVelocity and acceleration are 0, this indicates teleport movement
 					{
-						projectile.position.X = targetPoint.X;
-						projectile.position.Y = targetPoint.Y;
-						projectile.velocity.X = 0f;
-						projectile.velocity.Y = 0f;
+						Projectile.position.X = targetPoint.X;
+						Projectile.position.Y = targetPoint.Y;
+						Projectile.velocity.X = 0f;
+						Projectile.velocity.Y = 0f;
 						return;
 					}
 					else
 					{
 						if (distanceToTargetY <= 0.2f)
 						{
-							projectile.velocity.Y = 0f;
+							Projectile.velocity.Y = 0f;
 						}
 						else if (distanceToTargetY > 2f) //additional check to prevent odd behavior at distanceToTargetY ~= 0
 						{
-							projectile.velocity.Y += (acceleration * 0.002f * Math.Abs(slopeRise) * (projectile.position.Y >= targetPoint.Y ? -1 : 1));
+							Projectile.velocity.Y += (acceleration * 0.002f * Math.Abs(slopeRise) * (Projectile.position.Y >= targetPoint.Y ? -1 : 1));
 						}
 						if (distanceToTargetX <= 0.2f)
 						{
-							projectile.velocity.X = 0f;
+							Projectile.velocity.X = 0f;
 						}
 						else if (distanceToTargetX > 2f) //additional check to prevent odd behavior at distanceToTargetX ~= 0
 						{
-							projectile.velocity.X += (acceleration * 0.002f * Math.Abs(slopeRun) * projectile.direction);
+							Projectile.velocity.X += (acceleration * 0.002f * Math.Abs(slopeRun) * Projectile.direction);
 						}
 					}
 				}
 				else //limited max velocity
 				{
-					if (Math.Abs(projectile.velocity.X) > (maxVelocity + 0.02f)) //check for maxVelocity on X axis, slight buffer for floating point shenanigans
+					if (Math.Abs(Projectile.velocity.X) > (maxVelocity + 0.02f)) //check for maxVelocity on X axis, slight buffer for floating point shenanigans
 					{
-						projectile.velocity.X = projectile.direction * maxVelocity; //this one's easy because of projectile.direction
+						Projectile.velocity.X = Projectile.direction * maxVelocity; //this one's easy because of projectile.direction
 					}
 					else //not at maxVelocity on X axis
 					{
 						if (distanceToTargetX < 0.2f)
 						{
-							projectile.velocity.X = 0f;
+							Projectile.velocity.X = 0f;
 						}
 						else if (distanceToTargetX > 2f) //additional check to prevent odd behavior at distanceToTargetX ~= 0
 						{
-							projectile.velocity.X += (acceleration * 0.002f * Math.Abs(slopeRun) * projectile.direction);
+							Projectile.velocity.X += (acceleration * 0.002f * Math.Abs(slopeRun) * Projectile.direction);
 						}
 					}
-					if (Math.Abs(projectile.velocity.Y) > (maxVelocity + 0.02f)) //check for maxVelocity on Y axis, slight buffer for floating point shenanigans
+					if (Math.Abs(Projectile.velocity.Y) > (maxVelocity + 0.02f)) //check for maxVelocity on Y axis, slight buffer for floating point shenanigans
 					{
-						if (projectile.velocity.Y < 0)
+						if (Projectile.velocity.Y < 0)
 						{
-							projectile.velocity.Y = -1f * maxVelocity;
+							Projectile.velocity.Y = -1f * maxVelocity;
 						}
 						else
 						{
-							projectile.velocity.Y = maxVelocity;
+							Projectile.velocity.Y = maxVelocity;
 						}
 					}
 					else //not at maxVelocity on Y axis
 					{
 						if (distanceToTargetY < 0.2f)
 						{
-							projectile.velocity.Y = 0f;
+							Projectile.velocity.Y = 0f;
 						}
 						else if (distanceToTargetY > 2f) //additional check to prevent odd behavior at distanceToTargetY ~= 0
 						{
-							projectile.velocity.Y += (acceleration * 0.002f * Math.Abs(slopeRise) * (projectile.position.Y >= targetPoint.Y ? -1 : 1));
+							Projectile.velocity.Y += (acceleration * 0.002f * Math.Abs(slopeRise) * (Projectile.position.Y >= targetPoint.Y ? -1 : 1));
 						}
 					}
 				}
@@ -451,35 +451,35 @@ namespace SleepyGangMiniMod.Projectiles
 					bool stoppedOnXAxis = false;
 					if (slopeRun <= 0.2f)
 					{
-						projectile.position.X = targetPoint.X;
-						projectile.velocity.X = 0f;
+						Projectile.position.X = targetPoint.X;
+						Projectile.velocity.X = 0f;
 						stoppedOnXAxis = true;
 					}
 					if (slopeRise <= 0.2f)
 					{
-						projectile.position.Y = targetPoint.Y;
-						projectile.velocity.Y = 0f;
+						Projectile.position.Y = targetPoint.Y;
+						Projectile.velocity.Y = 0f;
 						if (stoppedOnXAxis)
 						{
-							projectile.netUpdate = true;
+							Projectile.netUpdate = true;
 							return;
 						}
 					}
 				}
 				else //handles all other types of stop behavior
 				{
-					if ((deceleration == 0f) || ((Math.Abs(projectile.velocity.X) + Math.Abs(projectile.velocity.Y)) <= 0.2f))
+					if ((deceleration == 0f) || ((Math.Abs(Projectile.velocity.X) + Math.Abs(Projectile.velocity.Y)) <= 0.2f))
 					{
-						projectile.velocity.X = 0f;
-						projectile.velocity.Y = 0f;
-						projectile.netUpdate = true;
+						Projectile.velocity.X = 0f;
+						Projectile.velocity.Y = 0f;
+						Projectile.netUpdate = true;
 						return; //this is important to prevent a potential division by zero
 					}
-					projectile.velocity.X = projectile.velocity.X / (1f + deceleration);
-					projectile.velocity.Y = projectile.velocity.Y / (1f + deceleration);
+					Projectile.velocity.X = Projectile.velocity.X / (1f + deceleration);
+					Projectile.velocity.Y = Projectile.velocity.Y / (1f + deceleration);
 				}
 			}
-			projectile.netUpdate = true;
+			Projectile.netUpdate = true;
 		}
 	}
 

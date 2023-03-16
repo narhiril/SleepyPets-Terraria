@@ -14,26 +14,25 @@ namespace SleepyGangMiniMod.Items
 
 		public override void SetDefaults()
 		{
-			item.width = 20;
-			item.height = 30;
-			item.useStyle = 1;
-			item.useAnimation = 30;
-			item.value = Item.buyPrice(0, 1, 0, 0);
-			item.buffType = ModContent.BuffType<Buffs.GlacieCompanionPetBuff>();
-			item.shoot = ModContent.ProjectileType<Projectiles.GlacieCompanionPet>();
-			item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.Pixie, 0);
-			item.useTime = 30;
-			item.rare = 9;
-			item.damage = 0;
-			item.noMelee = true;
+			Item.width = 20;
+			Item.height = 30;
+			Item.useStyle = 1;
+			Item.useAnimation = 30;
+			Item.value = Item.buyPrice(0, 1, 0, 0);
+			Item.buffType = ModContent.BuffType<Buffs.GlacieCompanionPetBuff>();
+			Item.shoot = ModContent.ProjectileType<Projectiles.GlacieCompanionPet>();
+			Item.UseSound = SoundID.Pixie;
+			Item.useTime = 30;
+			Item.rare = 9;
+			Item.damage = 0;
+			Item.noMelee = true;
 		}
 
 		public override void AddRecipes()
 		{
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.DirtBlock);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }
